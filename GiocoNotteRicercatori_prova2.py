@@ -1,11 +1,9 @@
-import country_converter as coco
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
 
 # Carica il CSV FAOSTAT
 df = pd.read_csv("FAOSTAT_data_en_8-10-2025.csv")
-df['Area_it'] = coco.convert(names=df['Area'], to='name_short', to_translation='it')
 
 st.set_page_config(page_title="Gioco Export FAOSTAT", page_icon="🌾")
 
@@ -43,7 +41,7 @@ if st.button("Calcola punteggi") and partecipanti:
     for nome, paesi in partecipanti.items():
         totale = 0
         for paese in paesi:
-            riga = df_filtrato[df_filtrato["Area_it"].str.lower() == paese.lower()]
+            riga = df_filtrato[df_filtrato["Area"].str.lower() == paese.lower()]
             if not riga.empty:
                 totale += riga["Value"].values[0]
         punteggi[nome] = totale
@@ -60,15 +58,14 @@ if st.button("Calcola punteggi") and partecipanti:
 
     st.subheader("🌍 Top 5 reale")
     for _, row in top5.iterrows():
-        st.write(f"{row['Area_it']}: {row['Value']:,.0f} t ({row['Percentuale']:.2f}%)")
+        st.write(f"{row['Area']}: {row['Value']:,.0f} t ({row['Percentuale']:.2f}%)")
 
     st.write(f"**Totale cumulato Top 5**: {top5['Value'].sum():,.0f} t ({top5['Percentuale'].sum():.2f}%)")
 
     # Grafico
     fig, ax = plt.subplots()
-    ax.bar(top5["Area_it"], top5["Percentuale"])
+    ax.bar(top5["Area"], top5["Percentuale"])
     ax.set_ylabel("% sul totale mondiale")
     ax.set_title(f"Top 5 export {prodotto} ({anno})")
     plt.xticks(rotation=45)
     st.pyplot(fig)
-
